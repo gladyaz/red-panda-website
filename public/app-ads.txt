@@ -1,0 +1,24 @@
+# app-ads.txt — Red Panda
+#
+# THIS FILE CONTAINS NO AUTHORIZED SELLER RECORDS YET. It is a placeholder.
+#
+# The IAB Tech Lab app-ads.txt specification treats any line beginning with "#"
+# as a comment and ignores it, so a crawler reads this file as declaring zero
+# authorized sellers — exactly the same as an empty file, with the advantage
+# that it explains itself.
+#
+# No publisher id is written here because Red Panda has no AdMob account yet.
+# An invented line, or a dummy one shaped like a real record, would be a false
+# declaration about who may sell this app's inventory.
+#
+# TO COMPLETE THIS FILE: copy the exact line AdMob generates for the Red Panda
+# app (AdMob → Apps → Red Panda → App settings → app-ads.txt) and REPLACE
+# EVERYTHING in this file with it. Do not append it below these comments and do
+# not edit the digits by hand — copy the line as AdMob prints it.
+#
+# No example record is written here, not even commented out — a commented line
+# in the right shape is the one somebody uncomments by mistake. The exact
+# format, with a worked example, is in the setup document below.
+#
+# Full procedure, including the order this must happen in relative to the Play
+# listing: docs/ADMOB_APP_ADS_SETUP.md

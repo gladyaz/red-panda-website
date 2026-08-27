@@ -1,26 +1,98 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * Red Panda — dark cinematic base.
+ *
+ * One accent, used sparingly. Every foreground/background pair below was
+ * checked against its real background: text 17.9:1, muted 7.7:1, accent text
+ * 6.8:1, and near-black on the accent fill 5.4:1 — all at or above WCAG AA for
+ * normal text, not just for large text.
+ */
+@theme {
+  --color-canvas: #0b0b0e;
+  --color-surface: #141419;
+  --color-surface-raised: #1b1b21;
+  --color-line: #26262e;
+  --color-line-strong: #34343e;
+
+  --color-ink: #f4f4f5;
+  --color-ink-muted: #a1a1aa;
+  --color-ink-dim: #8a8a93;
+
+  /* Rust-red, after the animal. Warmer than a broadcast red on purpose. */
+  --color-ember: #e8552f;
+  /* The same hue lightened until it clears AA as body-sized text on canvas. */
+  --color-ember-text: #f4703f;
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/**
+ * One visible focus treatment for the whole site, defined once.
+ *
+ * `:focus-visible` rather than `:focus` so a pointer click does not leave a
+ * ring behind, while every keyboard tab stop shows one. The offset keeps the
+ * ring clear of the element's own border on cards and buttons.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-ember-text);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/**
+ * The single ambient light source in the design: a soft ember bloom behind the
+ * top of the page. Pure CSS, no image, no animation — it costs nothing and is
+ * what keeps a flat near-black page from reading as unfinished.
+ */
+.hero-bloom::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -14rem;
+  height: 36rem;
+  pointer-events: none;
+  background: radial-gradient(
+    52% 50% at 50% 50%,
+    rgb(232 85 47 / 0.16) 0%,
+    rgb(232 85 47 / 0.05) 45%,
+    transparent 72%
+  );
+}
+
+/* Hairline rule that fades at both ends, used between major page sections. */
+.rule-fade {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-line-strong),
+    transparent
+  );
 }
