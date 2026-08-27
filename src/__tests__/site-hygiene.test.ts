@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 
 import { PRIVACY_DOCUMENTS } from '@/lib/privacy-content';
 
@@ -166,6 +166,73 @@ describe('environment configuration', () => {
   test('declares no variable that could hold a secret', () => {
     for (const cue of ['SECRET', 'TOKEN', 'PASSWORD', 'PRIVATE_KEY', 'API_KEY']) {
       expect(envExample).not.toContain(`${cue}=`);
+    }
+  });
+});
+
+describe('security headers', () => {
+  /**
+   * Loads next.config.ts fresh under a given NODE_ENV and returns the header
+   * list it produces. `resetModules` matters: the config decides its dev/prod
+   * branch at module scope, so a cached module would answer for whichever
+   * environment imported it first.
+   */
+  async function loadHeaders(nodeEnv: string) {
+    vi.stubEnv('NODE_ENV', nodeEnv);
+    vi.resetModules();
+
+    const { default: config } = await import('../../next.config');
+    const rules = await config.headers!();
+
+    return rules[0].headers;
+  }
+
+  function policyOf(headers: { key: string; value: string }[]) {
+    return headers.find((header) => header.key === 'Content-Security-Policy')!
+      .value;
+  }
+
+  test('a production build never allows unsafe-eval', async () => {
+    // The one assertion in this file that guards a real security property
+    // rather than an honesty one. React only needs eval() in development; a
+    // production policy that allows it has been weakened by accident.
+    const policy = policyOf(await loadHeaders('production'));
+
+    expect(policy).not.toContain('unsafe-eval');
+    expect(policy).toContain("script-src 'self' 'unsafe-inline'");
+  });
+
+  test('development allows unsafe-eval so React can build a usable stack', async () => {
+    expect(policyOf(await loadHeaders('development'))).toContain(
+      "'unsafe-eval'",
+    );
+  });
+
+  test('production sets every header the site relies on', async () => {
+    const headers = await loadHeaders('production');
+    const keys = headers.map((header) => header.key);
+
+    expect(keys).toEqual([
+      'Content-Security-Policy',
+      'X-Content-Type-Options',
+      'X-Frame-Options',
+      'Referrer-Policy',
+      'Permissions-Policy',
+      'Strict-Transport-Security',
+    ]);
+  });
+
+  test('framing and outbound connections stay closed in production', async () => {
+    const policy = policyOf(await loadHeaders('production'));
+
+    for (const directive of [
+      "frame-ancestors 'none'",
+      "object-src 'none'",
+      "connect-src 'self'",
+      "form-action 'self'",
+      "base-uri 'self'",
+    ]) {
+      expect(policy).toContain(directive);
     }
   });
 });

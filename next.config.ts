@@ -26,9 +26,22 @@ import type { NextConfig } from 'next';
  * `output: 'export'` for static hosting, these headers must move to the host's
  * own configuration — docs/DEPLOYMENT.md carries the equivalent file.
  */
+/**
+ * React's development build uses `eval()` for debugging features — most
+ * visibly, reconstructing a callstack that crossed the server/client boundary.
+ * A CSP without `'unsafe-eval'` blocks it, and the result is a console full of
+ * "eval() is not supported in this environment" instead of a usable stack.
+ *
+ * React never uses `eval()` in a production build, so this is granted to
+ * `next dev` ONLY. A production response keeps the strict policy, and that is
+ * the one that ships — `next build` sets `NODE_ENV=production`, so there is no
+ * path by which a deployed site serves the relaxed header.
+ */
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
   "font-src 'self'",

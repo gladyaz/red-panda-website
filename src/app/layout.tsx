@@ -40,7 +40,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html className={`${plusJakarta.variable} h-full`} lang="en">
+    // `data-scroll-behavior` is what lets Next.js suppress the smooth scroll
+    // from globals.css during a route change. Without it, navigating from the
+    // footer of one page to another animates the scroll back to the top
+    // instead of landing there — which reads as a lag, not as polish. Smooth
+    // scrolling still applies to in-page anchors, which is the only place it
+    // was wanted (the Support page's "On this page" nav).
+    <html
+      className={`${plusJakarta.variable} h-full`}
+      data-scroll-behavior="smooth"
+      lang="en"
+    >
       <body className="flex min-h-full flex-col font-sans">
         <a
           className="sr-only z-50 rounded-md bg-surface-raised px-4 py-2 text-sm font-medium text-ink focus:not-sr-only focus:absolute focus:top-3 focus:left-3"
