@@ -162,7 +162,7 @@ export default function SupportPage() {
         <p>
           Full steps for both routes, and exactly what is deleted, are on the{' '}
           <Link
-            className="rounded-sm font-medium text-ember-text underline decoration-ember-text/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-text"
+            className="rounded-sm font-medium text-ember-soft underline decoration-ember-soft/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-soft"
             href="/delete-account"
           >
             Delete Account
@@ -183,7 +183,7 @@ export default function SupportPage() {
         <p>
           For questions about what data Red Panda holds, read the{' '}
           <Link
-            className="rounded-sm font-medium text-ember-text underline decoration-ember-text/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-text"
+            className="rounded-sm font-medium text-ember-soft underline decoration-ember-soft/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-soft"
             href="/privacy"
           >
             Privacy Policy

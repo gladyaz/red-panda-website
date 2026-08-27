@@ -9,7 +9,7 @@ export const metadata = {
 export default function NotFound() {
   return (
     <div className="mx-auto w-full max-w-3xl px-5 py-20 sm:px-8 sm:py-28">
-      <p className="text-xs font-semibold tracking-[0.22em] text-ember-text uppercase">404</p>
+      <p className="text-xs font-semibold tracking-[0.22em] text-ember-soft uppercase">404</p>
       <h1 className="mt-5 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
         This page does not exist.
       </h1>
@@ -20,7 +20,7 @@ export default function NotFound() {
         {[{ href: '/', label: 'Home' }, ...SECONDARY_ROUTES].map((route) => (
           <li key={route.href}>
             <Link
-              className="rounded-sm text-ember-text underline decoration-ember-text/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-text"
+              className="rounded-sm text-ember-soft underline decoration-ember-soft/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-soft"
               href={route.href}
             >
               {route.label}

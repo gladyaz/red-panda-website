@@ -27,15 +27,17 @@ export const metadata: Metadata = {
   // hostname nobody owns.
   metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: {
-    default: `${SITE_NAME} — Short dramas, made easy to watch`,
+    default: `${SITE_NAME} — Free short drama app`,
     template: `%s — ${SITE_NAME}`,
   },
   description:
-    'Red Panda is a short-drama streaming app: free episodes, adaptive streaming built for mobile, and rewards you earn while you watch.',
+    'Red Panda is a free short drama app for Android: Mandarin short dramas with Indonesian subtitles, adaptive streaming built for mobile, and rewards you earn while you watch.',
   applicationName: SITE_NAME,
-  // No Twitter/X card block and no `creator` handle: Red Panda has no
-  // published social account recorded in any of this product's repositories,
-  // and inventing one would attribute the site to somebody else's profile.
+  // No `twitter.creator` or `twitter.site` handle: Red Panda has no published
+  // social account recorded in any of this product's repositories, and
+  // inventing one would attribute the site to somebody else's profile. Next.js
+  // still derives `twitter:card`/`title`/`description` from the Open Graph
+  // block above, which is correct — those carry no account identity.
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

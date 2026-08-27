@@ -6,7 +6,7 @@ import HomePage from '@/app/page';
 import PrivacyPage from '@/app/privacy/page';
 import SupportPage from '@/app/support/page';
 import { SiteFooter } from '@/components/site-footer';
-import { SECONDARY_ROUTES } from '@/lib/navigation';
+import { HOME_SECTIONS, SECONDARY_ROUTES } from '@/lib/navigation';
 
 afterEach(cleanup);
 
@@ -80,22 +80,47 @@ function assertNoPaymentSurface(container: HTMLElement, pageName: string) {
 }
 
 describe('homepage', () => {
-  test('renders the brand, the tagline and the four highlights', () => {
+  test('renders the hero', () => {
     // Arrange & Act
     render(<HomePage />);
 
     // Assert
     const heading = screen.getByRole('heading', { level: 1 });
-    expect(heading.textContent).toContain('Red Panda');
-    expect(heading.textContent).toContain('Short dramas, made easy to watch.');
+    expect(heading.textContent).toBe('Stories worth another episode');
+
+    // The brand is no longer inside the h1 — it moved to the wordmark in the
+    // header and the badge above the headline. Assert it is still on the page.
+    expect(screen.getByText('Short drama · Free to watch')).toBeTruthy();
+  });
+
+  test('renders every major section, each with a heading', () => {
+    render(<HomePage />);
 
     for (const title of [
-      'Watch anywhere',
-      'Rewards',
-      'Your watchlist',
-      'Simple and free',
+      'Now on Red Panda',
+      'Smooth on the connection you actually have',
+      'Four things, done properly',
+      'Your next story is waiting',
     ]) {
-      screen.getByRole('heading', { level: 3, name: title });
+      screen.getByRole('heading', { level: 2, name: title });
+    }
+
+    // The Rewards heading is split across spans for the gradient word.
+    expect(
+      screen.getByRole('heading', { level: 2, name: /Watch\. Earn\. Repeat\./ }),
+    ).toBeTruthy();
+  });
+
+  test('every header jump link points at a section that exists', () => {
+    const { container } = render(<HomePage />);
+
+    // A header link to a missing anchor scrolls nowhere and reads as broken
+    // rather than as absent, so the two lists have to stay in step.
+    for (const section of HOME_SECTIONS) {
+      expect(
+        container.querySelector(`#${section.id}`),
+        `no element with id="${section.id}"`,
+      ).toBeTruthy();
     }
   });
 
@@ -104,16 +129,17 @@ describe('homepage', () => {
 
     const { container } = render(<HomePage />);
 
-    expect(screen.getByText('Coming to Google Play')).toBeTruthy();
+    // Two CTAs by design: the hero and the closing section.
+    expect(screen.getAllByText('Coming to Google Play')).toHaveLength(2);
 
     // The decisive assertion: nothing on the page points anywhere near a store.
-    const externalHrefs = Array.from(container.querySelectorAll('a[href]')).map(
+    const hrefs = Array.from(container.querySelectorAll('a[href]')).map(
       (anchor) => anchor.getAttribute('href') ?? '',
     );
-    expect(externalHrefs.some((href) => href.includes('play.google.com'))).toBe(
-      false,
-    );
-    expect(externalHrefs.every((href) => href.startsWith('/'))).toBe(true);
+    expect(hrefs.some((href) => href.includes('play.google.com'))).toBe(false);
+    expect(
+      hrefs.every((href) => href.startsWith('/') || href.startsWith('#')),
+    ).toBe(true);
   });
 
   test('becomes a real Play link once a genuine listing URL is configured', () => {
@@ -123,10 +149,13 @@ describe('homepage', () => {
 
     render(<HomePage />);
 
-    const link = screen.getByRole('link', {
-      name: 'Get Red Panda on Google Play',
+    const links = screen.getAllByRole('link', {
+      name: /Get it on Google Play/,
     });
-    expect(link.getAttribute('href')).toBe(listing);
+    expect(links).toHaveLength(2);
+    for (const link of links) {
+      expect(link.getAttribute('href')).toBe(listing);
+    }
     expect(screen.queryByText('Coming to Google Play')).toBeNull();
   });
 
@@ -135,7 +164,16 @@ describe('homepage', () => {
 
     render(<HomePage />);
 
-    expect(screen.getByText('Coming to Google Play')).toBeTruthy();
+    expect(screen.getAllByText('Coming to Google Play')).toHaveLength(2);
+  });
+
+  test('offers no iOS download, which Red Panda V1 does not have', () => {
+    const { container } = render(<HomePage />);
+    const text = (container.textContent ?? '').toLowerCase();
+
+    for (const cue of ['app store', 'ios', 'iphone', 'testflight']) {
+      expect(text).not.toContain(cue);
+    }
   });
 
   test('markets no paid tier of any kind', () => {

@@ -5,21 +5,25 @@ import { SITE_NAME } from '@/lib/site-config';
 /**
  * The wordmark.
  *
- * Deliberately typographic. No official Red Panda logo asset exists yet, and
- * inventing one — even a tasteful geometric shape — would put a mark into the
- * header, the tab bar and eventually a store listing that the product owner
- * never approved and would have to unpick later. Type is the honest
- * placeholder: it is legible, it scales, and replacing it with a real asset is
- * a change to this one file.
+ * Deliberately typographic. No Red Panda logo asset exists — the mobile app
+ * still ships Expo's stock icon, and `logo-glow.png` in that repository is a
+ * template gradient, not branding. Inventing a mark here would put a symbol
+ * into the header, the browser tab and eventually a store listing that the
+ * product owner never approved and would have to unpick later. Type is the
+ * honest placeholder, and replacing it with a real asset is a change to this
+ * one file.
+ *
+ * The dot carries the brand gradient, which is the one piece of visual identity
+ * that IS real: it comes straight from the app's `Gradients.primary`.
  */
 export function BrandMark({ asLink = true }: { asLink?: boolean }) {
   const content = (
     <>
       <span
         aria-hidden="true"
-        className="size-1.5 rounded-full bg-ember transition-transform duration-200 group-hover:scale-125"
+        className="brand-gradient size-2 rounded-full transition-transform duration-200 group-hover:scale-125"
       />
-      <span className="text-[0.98rem] font-semibold tracking-tight text-ink">
+      <span className="text-base font-extrabold tracking-tight text-ink">
         {SITE_NAME}
       </span>
     </>
@@ -31,11 +35,10 @@ export function BrandMark({ asLink = true }: { asLink?: boolean }) {
 
   return (
     <Link
-      className="group flex items-center gap-2.5 rounded-sm"
-      href="/"
-      // The homepage link in a header is conventionally unlabelled beyond the
-      // wordmark, but the wordmark alone does not say where it goes.
+      // The wordmark alone does not say where it goes.
       aria-label={`${SITE_NAME} — home`}
+      className="group flex shrink-0 items-center gap-2.5 rounded-sm"
+      href="/"
     >
       {content}
     </Link>

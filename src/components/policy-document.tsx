@@ -31,7 +31,7 @@ function PolicyText({ text }: { text: string }) {
 
         return (
           <Link
-            className="rounded-sm font-medium text-ember-text underline decoration-ember-text/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-text"
+            className="rounded-sm font-medium text-ember-soft underline decoration-ember-soft/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-soft"
             href={href}
             key={index}
           >
