@@ -136,8 +136,12 @@ function readInternationalNumber(
 }
 
 /**
- * The support WhatsApp number, set as `+6285884022823` and returned as
- * `6285884022823`.
+ * The support WhatsApp number, set as `+6281234567890` and returned as
+ * `6281234567890`.
+ *
+ * The example above is fictional on purpose. The real number is a deployment
+ * value and belongs in the host's environment, never in a comment — see
+ * `.env.example`, which ships every key empty for the same reason.
  *
  * A second contact route, not a replacement for the mailbox: WhatsApp is how
  * this audience actually reaches a business, but an account-deletion request
