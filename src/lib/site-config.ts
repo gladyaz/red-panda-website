@@ -113,6 +113,42 @@ export function getSupportEmail(): string | undefined {
 }
 
 /**
+ * Accepts only an international number: a leading `+`, then 8 to 15 digits.
+ *
+ * Written numbers carry spaces, dashes and brackets, so those are stripped
+ * before the check — but a LOCAL number (`0858…`) is refused rather than
+ * repaired. Prefixing a country code onto it would be inventing part of a
+ * phone number, and a wa.me link one digit off does not fail visibly: it opens
+ * a chat with a stranger who then receives support requests.
+ *
+ * Returns the digits WITHOUT the `+`, which is the form wa.me takes.
+ */
+function readInternationalNumber(
+  value: string | undefined,
+): string | undefined {
+  const compact = value?.trim().replace(/[\s()-]/g, '');
+
+  if (!compact) {
+    return undefined;
+  }
+
+  return /^\+\d{8,15}$/.test(compact) ? compact.slice(1) : undefined;
+}
+
+/**
+ * The support WhatsApp number, set as `+6285884022823` and returned as
+ * `6285884022823`.
+ *
+ * A second contact route, not a replacement for the mailbox: WhatsApp is how
+ * this audience actually reaches a business, but an account-deletion request
+ * needs a written trail, and the app's own fallback text points at an email
+ * address. Both are offered; neither is required for the site to be correct.
+ */
+export function getSupportWhatsApp(): string | undefined {
+  return readInternationalNumber(process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP);
+}
+
+/**
  * The Google Play listing, once it exists.
  *
  * Accepted only when it is genuinely a Google Play URL. An arbitrary https URL

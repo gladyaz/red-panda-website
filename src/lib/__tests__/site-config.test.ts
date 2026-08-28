@@ -5,10 +5,11 @@ import {
   getGooglePlayUrl,
   getSiteUrl,
   getSupportEmail,
+  getSupportWhatsApp,
 } from '@/lib/site-config';
 
 /**
- * These four getters are the site's entire trust boundary. Everything else on
+ * These five getters are the site's entire trust boundary. Everything else on
  * the site renders whatever they return, so a bad value getting past them is
  * the one way this site can end up showing a broken link or a fabricated one.
  */
@@ -68,6 +69,36 @@ describe('getSupportEmail', () => {
     vi.stubEnv('NEXT_PUBLIC_SUPPORT_EMAIL', value);
 
     expect(getSupportEmail()).toBeUndefined();
+  });
+});
+
+describe('getSupportWhatsApp', () => {
+  test('returns the digits without the plus, which is what wa.me takes', () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPPORT_WHATSAPP', '+6281234567890');
+
+    expect(getSupportWhatsApp()).toBe('6281234567890');
+  });
+
+  test('strips the separators a written number carries', () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPPORT_WHATSAPP', ' +62 (812) 3456-7890 ');
+
+    expect(getSupportWhatsApp()).toBe('6281234567890');
+  });
+
+  test.each([
+    ['an unset value', ''],
+    // The one that matters: prefixing a country code onto a local number would
+    // invent part of a phone number, and the resulting wa.me link would not
+    // fail visibly — it would open a chat with a stranger.
+    ['a local Indonesian number', '081234567890'],
+    ['a number with no plus', '6281234567890'],
+    ['letters', '+62812ABC7890'],
+    ['too few digits', '+6281234'],
+    ['too many digits', '+6281234567890123'],
+  ])('returns undefined for %s', (_label, value) => {
+    vi.stubEnv('NEXT_PUBLIC_SUPPORT_WHATSAPP', value);
+
+    expect(getSupportWhatsApp()).toBeUndefined();
   });
 });
 

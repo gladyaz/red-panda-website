@@ -44,7 +44,7 @@ becomes dynamic, something has been added that this site does not need.
 
 ## 2. Environment variables
 
-All three are **optional**. The site builds and serves correctly with none of
+All four are **optional**. The site builds and serves correctly with none of
 them set; each surface renders an honest "not available yet" state rather than a
 broken link. See [`.env.example`](../.env.example).
 
@@ -52,6 +52,7 @@ broken link. See [`.env.example`](../.env.example).
 |---|---|---|
 | `NEXT_PUBLIC_SITE_URL` | Canonical URLs, Open Graph `url`, `sitemap.xml` entries, and the `Sitemap:` line in `robots.txt` | No canonical is emitted, the sitemap is empty, every page is `noindex`, and `robots.txt` disallows everything |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | `mailto:` links on `/support` and `/delete-account` | Both pages state that contact details are being finalized |
+| `NEXT_PUBLIC_SUPPORT_WHATSAPP` | A `wa.me` link beside the email on the same two pages. Must be international format (`+6281234567890`); a local `0812…` number is refused, not repaired | No WhatsApp line is shown; if the email is also unset, both pages state that contact details are being finalized |
 | `NEXT_PUBLIC_GOOGLE_PLAY_URL` | The homepage call to action becomes a real Play link | The homepage shows a non-clickable "Coming to Google Play" status |
 
 Three things to know about these:

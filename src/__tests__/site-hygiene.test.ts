@@ -140,7 +140,7 @@ describe('no development or internal address is shipped', () => {
 describe('environment configuration', () => {
   const envExample = readShipped('.env.example');
 
-  test('documents exactly the three public variables the site reads', () => {
+  test('documents exactly the four public variables the site reads', () => {
     const declared = envExample
       .split('\n')
       .filter((line) => /^[A-Z_]+=/.test(line))
@@ -149,6 +149,7 @@ describe('environment configuration', () => {
     expect(declared).toEqual([
       'NEXT_PUBLIC_SITE_URL',
       'NEXT_PUBLIC_SUPPORT_EMAIL',
+      'NEXT_PUBLIC_SUPPORT_WHATSAPP',
       'NEXT_PUBLIC_GOOGLE_PLAY_URL',
     ]);
   });
