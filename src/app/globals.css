@@ -1,26 +1,204 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * Red Panda — web design tokens.
+ *
+ * These are NOT invented for the website. Every value below is taken from the
+ * mobile app's own `src/constants/theme.ts` (`Palette`, `Gradients`, `Radius`,
+ * `FontFamily`), so the site and the product it advertises are visibly the same
+ * brand. The app is dark-only by design intent and so is this.
+ *
+ * Contrast was computed against the real backgrounds before use:
+ * white 19.4:1, secondary 7.6:1, primary-as-text 7.4:1, near-black on the
+ * primary fill 7.4:1. `--color-flare` (#E23B3B) is 4.2:1 on surface, so it is
+ * a FILL and gradient colour only — never small text. `--color-ink-dim` is the
+ * smallest type on the site and clears AA at 5.6:1.
+ */
+@theme {
+  --color-canvas: #0d0d0f;
+  --color-canvas-raised: #101013;
+  --color-surface: #18181b;
+  --color-surface-muted: #1c1c1f;
+  --color-line: #2a2a2e;
+  --color-line-strong: #3a3a40;
+
+  --color-ink: #ffffff;
+  --color-ink-muted: #a1a1aa;
+  --color-ink-dim: #8a8a93;
+
+  /* The app's brand pair: warm orange into red. */
+  --color-ember: #ff7a1a;
+  --color-ember-soft: #ff9a4d;
+  --color-flare: #e23b3b;
+
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+  /* Anchor navigation must not land a heading underneath the sticky header. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/**
+ * One visible focus treatment for the whole site. `:focus-visible` rather than
+ * `:focus` so a pointer click leaves no ring while every keyboard tab stop
+ * shows one.
+ */
+:focus-visible {
+  outline: 2px solid var(--color-ember-soft);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The brand gradient, used on fills only — never behind small text. */
+.brand-gradient {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-ember) 0%,
+    var(--color-flare) 100%
+  );
+}
+
+/* The same pair as a text fill, for a single accented word in a headline. */
+.brand-text {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-ember-soft) 0%,
+    var(--color-flare) 90%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/**
+ * The ambient light behind the hero and the closing CTA. Pure CSS, no image,
+ * no animation — it is what keeps a near-black page from reading as unfinished.
+ */
+.bloom::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: -18rem;
+  height: 44rem;
+  pointer-events: none;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    rgb(255 122 26 / 0.14) 0%,
+    rgb(226 59 59 / 0.06) 45%,
+    transparent 72%
+  );
+}
+
+/* Hairline rule that fades at both ends, used between major sections. */
+.rule-fade {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-line-strong),
+    transparent
+  );
+}
+
+/**
+ * Horizontal poster rails on small screens.
+ *
+ * `scroll-snap` gives the rail a deliberate stop at each poster instead of
+ * free momentum, and the padding-inline keeps the first and last poster clear
+ * of the viewport edge while still allowing the rail to bleed off-screen.
+ */
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 42vw;
+  gap: 0.875rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-inline: 1.25rem;
+  scrollbar-width: none;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail > * {
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .rail {
+    grid-auto-columns: 30vw;
+    padding-inline: 2rem;
+  }
+}
+
+/*
+ * From tablet up the rail stops scrolling and becomes a four-across grid.
+ * 768px is the switch rather than 1024px because a 30vw scroll rail on a tablet
+ * showed barely three tiles — enough to look cut off, not enough to read as a
+ * deliberate rail. Four static tiles is the clearer composition at that width.
+ */
+@media (min-width: 768px) {
+  .rail {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-columns: auto;
+    gap: 1.25rem;
+    overflow-x: visible;
+    padding-inline: 0;
+  }
+}
+
+/**
+ * Entrance for the hero. One transform and one opacity, both cheap, and the
+ * whole thing is switched off below for anyone who asked for less motion.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Used by the header nav row, which scrolls rather than wrapping on mobile. */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }
