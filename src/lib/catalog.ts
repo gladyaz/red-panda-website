@@ -15,10 +15,11 @@
  *
  * ARTWORK: series covers live in a PRIVATE Cloudflare R2 bucket and reach
  * clients only as short-lived presigned URLs (see the mobile repo's
- * `docs/internal-storage.md`), so they cannot be embedded in a static site.
- * No cover file exists in either repository. Until real artwork is placed in
- * `public/posters/`, each tile renders the same branded fallback the app
- * itself shows for a series with no cover — see `public/posters/README.md`.
+ * `docs/internal-storage.md`), so this site cannot fetch them at build time.
+ * A committed copy of the four production covers therefore lives in
+ * `public/posters/`, keyed by the ids below. Remove one and that tile falls
+ * back to the branded initial the app itself shows for a series with no
+ * cover — see `public/posters/README.md`.
  */
 
 export interface Series {
