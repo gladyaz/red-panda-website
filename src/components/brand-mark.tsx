@@ -3,25 +3,41 @@ import Link from 'next/link';
 import { SITE_NAME } from '@/lib/site-config';
 
 /**
- * The wordmark.
+ * The logo lockup: the Red Panda mark beside the wordmark.
  *
- * Deliberately typographic. No Red Panda logo asset exists — the mobile app
- * still ships Expo's stock icon, and `logo-glow.png` in that repository is a
- * template gradient, not branding. Inventing a mark here would put a symbol
- * into the header, the browser tab and eventually a store listing that the
- * product owner never approved and would have to unpick later. Type is the
- * honest placeholder, and replacing it with a real asset is a change to this
- * one file.
+ * The mark is the supplied brand artwork with its white background cut away.
+ * That cut is not trivial and is worth recording: the artwork uses white as
+ * both the background AND a design colour — the muzzle, the eye mask, the
+ * chest swoosh and the ear insides are all white — and they meet the outer
+ * white with no dividing outline. A plain background removal therefore eats
+ * the panda's face. The committed PNG was cut by deciding what counted as
+ * "outside" at 1/20 scale, where the narrow channel joining the muzzle to the
+ * background does not survive, then recovering the crisp edge at full
+ * resolution. Re-cut it the same way, or replace it with a transparent export
+ * from the vector source, which is better than any automated cut.
  *
- * The dot carries the brand gradient, which is the one piece of visual identity
- * that IS real: it comes straight from the app's `Gradients.primary`.
+ * On this dark canvas the mark's black areas recede and the orange and white
+ * carry the shape. That is a property of the artwork, not a bug to correct
+ * here — recolouring a logo to suit a background is a brand decision.
  */
 export function BrandMark({ asLink = true }: { asLink?: boolean }) {
   const content = (
     <>
-      <span
-        aria-hidden="true"
-        className="brand-gradient size-2 rounded-full transition-transform duration-200 group-hover:scale-125"
+      {/*
+        Plain <img>, not next/image: this is an already-sized static file, and
+        the optimizer would add a server dependency the site does not otherwise
+        have — it must keep working as a pure static export.
+      */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        // Decorative: the wordmark beside it already carries the name, so a
+        // screen reader announcing both would read "Red Panda Red Panda".
+        alt=""
+        className="size-7 shrink-0 transition-transform duration-200 group-hover:scale-110"
+        decoding="async"
+        height={28}
+        src="/logo.png"
+        width={28}
       />
       <span className="text-base font-extrabold tracking-tight text-ink">
         {SITE_NAME}
