@@ -155,12 +155,17 @@ export default function SupportPage() {
 
       <Section id="delete" title="Delete Account">
         <p>
-          You can delete your Red Panda account permanently. If you registered with an email address
-          and password you can do it yourself inside the app. If you signed in with Google or
-          WhatsApp your account has no password, so deletion is handled by contacting support.
+          You can delete your Red Panda account permanently, and you can do it yourself inside the
+          app whichever way you sign in. Red Panda asks you to confirm with the method your account
+          already uses: your current password, a fresh sign-in with your linked Google account, or a
+          verification code sent to your linked WhatsApp number.
         </p>
         <p>
-          Full steps for both routes, and exactly what is deleted, are on the{' '}
+          Contact support only if you cannot get into the app at all, or you have lost the sign-in
+          method itself — the phone that receives your WhatsApp code, or your Google account.
+        </p>
+        <p>
+          Full steps, and exactly what is deleted, are on the{' '}
           <Link
             className="rounded-sm font-medium text-ember-soft underline decoration-ember-soft/40 underline-offset-4 transition-colors duration-150 hover:decoration-ember-soft"
             href="/delete-account"

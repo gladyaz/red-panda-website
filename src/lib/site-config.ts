@@ -99,11 +99,14 @@ function readEmail(value: string | undefined): string | undefined {
 /**
  * The published support mailbox.
  *
- * Load-bearing, not decorative: the mobile app tells a Google-only or
- * WhatsApp-only account to request deletion by email, because those accounts
- * have no password and therefore no in-app deletion path (see
- * `/delete-account`). Until this is set, both the support page and the
- * deletion page say so plainly rather than showing an address nobody reads.
+ * Load-bearing, not decorative. Every V1 sign-in method now has a working
+ * in-app deletion path, so this is no longer the majority route — but it is
+ * still the only route left for someone who has lost access to the app or to
+ * the sign-in method their account uses, and the app itself falls back to
+ * "email the address on the Privacy Policy page" when it can offer an account
+ * no verifiable confirmation method (see `/delete-account`). Until this is
+ * set, both the support page and the deletion page say so plainly rather than
+ * showing an address nobody reads.
  */
 export function getSupportEmail(): string | undefined {
   return readEmail(process.env.NEXT_PUBLIC_SUPPORT_EMAIL);

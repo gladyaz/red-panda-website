@@ -13,11 +13,22 @@ against the code instead of against their memory of the product.
 - `short-drama-backend-v1-release-gate` — the NestJS backend, branch
   `integration/v1-auth-rewards`.
 
-Neither repository was modified.
+**§11 re-audited 28 August 2026**, read-only, against:
+
+- `red-panda-mobile`, branch `integration/red-panda-v1-final` — the provider-aware
+  deletion flow.
+- `red-panda-backend`, `docs/ACCOUNT_DELETION.md` — the provider-aware deletion
+  contract.
+
+No reference repository was modified in either pass.
 
 > If a fact below stops being true, the policy sentence it supports has to
 > change with it. A privacy policy that describes last release's behaviour is a
 > false statement, not a stale one.
+>
+> §11 is the worked example. The gap it recorded was real when it was written,
+> was closed by a later backend release, and the website went on asserting it
+> for as long as nobody re-read this file against the code.
 
 ---
 
@@ -158,8 +169,9 @@ on the website. No other period was invented.**
 
 | Fact | Source |
 |---|---|
-| One endpoint: `POST /users/me/deletion`, behind `JwtAuthGuard` | backend `src/auth/account-deletion.controller.ts` |
-| Body requires `currentPassword` **and** `confirmDeletion` as the literal boolean `true` | backend `src/auth/dto/account-deletion.dto.ts` |
+| Three authenticated routes: `GET /users/me/deletion/methods`, `POST /users/me/deletion/whatsapp/otp`, `POST /users/me/deletion` — all behind `JwtAuthGuard` | backend `docs/ACCOUNT_DELETION.md` §3 |
+| `confirmDeletion` as the literal boolean `true` is still required, and is an intent flag, never a credential | backend `docs/ACCOUNT_DELETION.md` §2 |
+| The proof travels with an optional `method` field defaulting to `"password"`, so the original `{ currentPassword, confirmDeletion }` body is still valid verbatim | backend `docs/ACCOUNT_DELETION.md` §3 |
 | Rate limited to **5 calls per 15 minutes**, a deliberate override of the app-wide default because the action is irreversible | backend `src/common/rate-limit.constants.ts` |
 | Immediate and irreversible: **no grace period, no cancellation endpoint** | backend `src/auth/auth.service.ts` |
 | Refused with `403 ACCOUNT_DELETION_FORBIDDEN` when `user.role !== 'user'` | backend `src/auth/auth.service.ts` |
@@ -184,32 +196,72 @@ Cascade (`onDelete: Cascade`) from the `User` row: `Session`,
 - `PaymentOrder` — `SetNull`. Irrelevant in V1: payments are disabled, so no row
   can exist.
 
-### THE GAP THAT DEFINES THE WEBSITE'S DELETION PAGE
+Purged immediately after the commit, outside the transaction: every
+`PhoneOtpChallenge` for the account's number. That table deliberately carries
+no `userId` and no foreign key — an OTP is requested for a *number*, before the
+server may know an account exists — so no cascade reaches it.
+Source: backend `docs/ACCOUNT_DELETION.md` §4.
 
-`deleteAccount` requires a password, and refuses when `passwordHash === null`
-with the generic `INVALID_CREDENTIALS`. **A Google-only or WhatsApp-only account
-has no password and therefore no in-app and no API self-service deletion path.**
-The backend comment states this outright as "a real, known gap"; the app already
-refuses to show a password form to such an account and tells the user to contact
-support at the address on the Privacy Policy page.
+### THE GAP THAT USED TO DEFINE THIS PAGE, AND IS NOW CLOSED
 
-Red Panda V1 ships Google Login and WhatsApp Login as its two sign-in methods,
-so **this is the majority case, not an edge case.** The mobile owner checklist
-says the same thing: the web page "is therefore not just a Play formality; it is
-the sole deletion route for those users."
+**Superseded 28 August 2026.** Until then this section recorded a real defect:
+`deleteAccount` required a password and refused when `passwordHash === null`,
+so a Google-only or WhatsApp-only account — the majority of V1 accounts — had
+no in-app and no API deletion path at all, and `/delete-account` was written
+to lead with "email support" for exactly that reason.
 
-**Consequence for the website:** `/delete-account` leads with the
-Google/WhatsApp route, before the in-app steps, and `NEXT_PUBLIC_SUPPORT_EMAIL`
-is the single most important variable on this site.
+That defect is fixed. **Deletion proof is now appropriate to the identity, and
+is always a fresh re-demonstration of the same factor the account signs in
+with:**
 
-### In-app steps (for an account that does have a password)
+| Account has | Proof | What the server verifies |
+|---|---|---|
+| `passwordHash` | `password` | bcrypt against the stored hash |
+| a `google` identity | `google` | a freshly obtained Google ID token whose `sub` equals **this account's** `AuthIdentity.providerSubject` |
+| a `whatsapp` identity | `whatsapp` | a single-use OTP sent to **this account's** linked number, in the `account_deletion` challenge namespace — a namespace that cannot be redeemed at the login verify route |
 
-Profile → Data & Privacy → `Hapus Akun` → `Password Saat Ini` →
-`Hapus Akun Saya` → confirm `Ya, Hapus Akun Saya Selamanya`.
+An account holding more than one of these may use **any single one**; each is
+already independently sufficient to sign in and take full control, so requiring
+all of them would recreate the same lock-out in a new place.
+`GET /users/me/deletion/methods` returns the list and the client picks.
+
+Nothing about authentication was weakened: a valid access token is still
+necessary and still not sufficient.
+
+Source: backend `docs/ACCOUNT_DELETION.md` §1–§3, §5;
+`src/auth/deletion/deletion-authorization.service.ts`. A release-gate step,
+`deletion-coverage`, blocks a release in which any V1 provider lacks an
+implemented proof or is disabled on the server.
+
+**Consequence for the website:** `/delete-account` leads with the **in-app**
+route, for all three identity types, and describes the confirmation step per
+method. Support is the documented fallback for someone who has lost access to
+the app or to the sign-in factor itself — the exception, no longer the rule.
+`NEXT_PUBLIC_SUPPORT_EMAIL` is still load-bearing for that fallback, but it is
+no longer the only thing standing between most users and deletion.
+
+### In-app steps
+
+Profile → Data & Privacy → `Hapus Akun` → confirm with the method the account
+owns → `Hapus Akun Saya` → confirm `Ya, Hapus Akun Saya Selamanya`.
+
+The confirmation step, per method, as it appears on the shipped screen:
+
+| Method | What the person does |
+|---|---|
+| Password | Types the current password under `Password Saat Ini` |
+| Google | Taps `Lanjutkan dengan Google` and re-authenticates with the linked Google account |
+| WhatsApp | Taps `Kirim Kode Verifikasi`, then types the code under `Kode Verifikasi` |
+
+The picker is rendered **only** when the account genuinely owns more than one
+method — a single-option picker would imply a decision the viewer does not
+have. The destructive button does not appear until the flow reaches the step
+where pressing it means something.
 
 The Data & Privacy screen's own copy is Indonesian in every app language, which
 is why the website quotes the Indonesian labels with an English gloss.
-Source: mobile `src/app/account-data.tsx`.
+Source: mobile `src/features/account-deletion/delete-account-card.tsx`,
+`deletion-copy.ts`, and `src/app/account-data.tsx`.
 
 ## 12. Data export
 

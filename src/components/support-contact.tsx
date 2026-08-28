@@ -3,12 +3,11 @@ import { getSupportEmail } from '@/lib/site-config';
 /**
  * The one place on this site that decides how to render a support contact.
  *
- * Three pages need it — Support, Delete Account and the Privacy Policy's
- * contact section — and the deletion page in particular cannot afford to
- * disagree with the others: for a Google-only or WhatsApp-only account, this
- * address is the ONLY route to deletion that exists. A page that showed a
- * mailbox while another said there was none would strand exactly the person
- * who needs it most.
+ * Two pages need it — Support and Delete Account — and they cannot afford to
+ * disagree: support is the deletion fallback for anyone who has lost access to
+ * the app or to the sign-in method their account uses, and a page that showed
+ * a mailbox while another said there was none would strand exactly the person
+ * with nowhere else to go.
  *
  * When `NEXT_PUBLIC_SUPPORT_EMAIL` is unset, this renders a plain statement of
  * that fact. It never renders a placeholder address.

@@ -149,7 +149,7 @@ None of these could be established from the code, and none was guessed:
 | | Blocks |
 |---|---|
 | **The root domain** | Everything on this page |
-| **The support email address** | Account deletion for every Google-only and WhatsApp-only account — the majority of V1 users |
+| **The support email address** | The account-deletion fallback for anyone who has lost access to the app or to their sign-in method. Every V1 sign-in method now deletes in-app, so this is the exception rather than the majority route |
 | **The real AdMob publisher line** | `app-ads.txt` verification |
 | **The Google Play listing URL** | The homepage call to action becoming a link |
 | **The legal entity operating Red Panda**, if one exists | Naming an operator anywhere in the footer or the policy |

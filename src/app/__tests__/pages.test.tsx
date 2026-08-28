@@ -320,13 +320,64 @@ describe('delete account page', () => {
     ).toBeTruthy();
 
     for (const title of [
-      'If you signed in with Google or WhatsApp',
       'Delete from inside the app',
+      'If you cannot use the steps above',
       'What deletion removes',
       'What is kept, and why',
     ]) {
       screen.getByRole('heading', { level: 2, name: title });
     }
+  });
+
+  /**
+   * The regression this page exists to not repeat.
+   *
+   * Every V1 sign-in method has a real in-app deletion path, each confirmed
+   * with the same factor the account signs in with. This page previously led
+   * with the opposite — that Google and WhatsApp accounts had no password, so
+   * could not delete in-app and had to email support — which was true of an
+   * earlier backend and became a false statement about a live product.
+   *
+   * So the assertions are on the SUBSTANCE, not on a heading: all three proofs
+   * are described, and the sentences that denied two of them are absent.
+   */
+  test('describes an in-app deletion path for every V1 sign-in method', () => {
+    const { container } = render(<DeleteAccountPage />);
+    const text = container.textContent ?? '';
+
+    expect(text).toContain('Password Saat Ini');
+    expect(text).toContain('Lanjutkan dengan Google');
+    expect(text).toContain('Kirim Kode Verifikasi');
+  });
+
+  test('never claims a Google or WhatsApp account cannot delete itself in the app', () => {
+    const { container } = render(<DeleteAccountPage />);
+    const text = (container.textContent ?? '').toLowerCase();
+
+    for (const stale of [
+      'do not have a password',
+      'cannot use the in-app route',
+      'has no password',
+      'the only deletion route',
+    ]) {
+      expect(text, `stale limitation resurfaced: "${stale}"`).not.toContain(stale);
+    }
+  });
+
+  /**
+   * The in-app route must be the one a reader meets first. Ordering is the
+   * difference between a page that answers the question and a page that sends
+   * the majority of its visitors to an inbox they do not need.
+   */
+  test('leads with the in-app route, not the support fallback', () => {
+    render(<DeleteAccountPage />);
+
+    const headings = screen
+      .getAllByRole('heading', { level: 2 })
+      .map((heading) => heading.textContent);
+
+    expect(headings.indexOf('Delete from inside the app')).toBe(0);
+    expect(headings.indexOf('If you cannot use the steps above')).toBe(1);
   });
 
   test('states plainly that no support address exists yet, rather than showing one', () => {
@@ -405,6 +456,20 @@ describe('support page', () => {
 
     expect(container.textContent).toContain('Coins are earned, never bought');
     assertNoPaymentSurface(container, 'The support page');
+  });
+
+  /**
+   * The Support page carried a one-line summary of the same stale limitation
+   * the deletion page led with. A summary that contradicts the page it
+   * summarises is the more dangerous of the two, because it is the version a
+   * reader meets while looking for something else.
+   */
+  test('summarises deletion as an in-app action for every sign-in method', () => {
+    const { container } = render(<SupportPage />);
+    const text = container.textContent ?? '';
+
+    expect(text).toContain('you can do it yourself inside the app whichever way you sign in');
+    expect(text.toLowerCase()).not.toContain('your account has no password');
   });
 });
 
