@@ -48,33 +48,52 @@ function readShipped(path: string): string {
 describe('app-ads.txt', () => {
   const appAdsTxt = readShipped('public/app-ads.txt');
 
+  /**
+   * The only authorized relationship: Red Panda's own AdMob account, selling
+   * directly. `f08c47fec0942fa0` is Google's TAG certification authority id,
+   * identical for every Google publisher, so it is not a per-account value.
+   */
+  const AUTHORIZED_RECORD =
+    'google.com, pub-1667435731286936, DIRECT, f08c47fec0942fa0';
+
+  const records = appAdsTxt
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0 && !line.startsWith('#'));
+
   test('exists and is served from the site root', () => {
     expect(appAdsTxt.length).toBeGreaterThan(0);
   });
 
-  test('declares no publisher id, real or invented', () => {
-    // The record format is `<domain>, <publisher id>, DIRECT|RESELLER, <cert>`.
-    // Any `pub-` token at all would be a claim about who may sell this app's
-    // inventory — and Red Panda has no AdMob account yet, so every such claim
-    // would be false, including a `pub-XXXXXXXXXXXXXXXX` shaped placeholder.
-    expect(appAdsTxt).not.toMatch(/pub-[0-9X]{10,}/i);
-    expect(appAdsTxt).not.toMatch(/\bDIRECT\b/);
+  test('declares exactly the one authorized seller, byte for byte', () => {
+    // Each record is a signed statement that a party may sell this app's ad
+    // inventory. One account sells it, so exactly one line declares it — and
+    // the line is compared whole, because a single wrong digit in the
+    // publisher id invalidates the record silently rather than visibly.
+    expect(records).toEqual([AUTHORIZED_RECORD]);
+  });
+
+  test('authorizes no reseller and no second advertising system', () => {
+    // A RESELLER entry or a second ad system would have to come from a
+    // mediation partner that does not exist. Neither may appear by accident.
     expect(appAdsTxt).not.toMatch(/\bRESELLER\b/);
+    expect(records.every((record) => record.startsWith('google.com,'))).toBe(
+      true,
+    );
   });
 
-  test('contains only comments, so a crawler reads zero authorized sellers', () => {
-    const meaningfulLines = appAdsTxt
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
-
-    expect(meaningfulLines.length).toBeGreaterThan(0);
-    for (const line of meaningfulLines) {
-      expect(line.startsWith('#'), `not a comment: ${line}`).toBe(true);
-    }
+  test('names one publisher id, matching the AdMob app id', () => {
+    // pub-1667435731286936 is the account half of the AdMob App ID
+    // ca-app-pub-1667435731286936~3508538110. Asserting the whole set catches
+    // a second id pasted in from another account as well as a typo.
+    expect(new Set(appAdsTxt.match(/pub-\d+/g) ?? [])).toEqual(
+      new Set(['pub-1667435731286936']),
+    );
+    // A `pub-XXXXXXXXXXXXXXXX` shaped placeholder must never come back.
+    expect(appAdsTxt).not.toMatch(/pub-[0-9]*X/i);
   });
 
-  test('tells the owner where the real line comes from', () => {
+  test('tells the owner where the record came from', () => {
     expect(appAdsTxt).toContain('AdMob');
     expect(appAdsTxt).toContain('docs/ADMOB_APP_ADS_SETUP.md');
   });

@@ -1,30 +1,36 @@
 # app-ads.txt — AdMob setup
 
-`public/app-ads.txt` currently contains **comments only**. It declares no
-authorized sellers, because Red Panda has no AdMob account yet and a publisher
-id cannot be invented — it is a signed statement about who may sell this app's
-ad inventory.
+`public/app-ads.txt` carries the **real** Google AdMob authorization for
+publisher `pub-1667435731286936`:
 
-This document is the procedure for finishing it.
+```
+google.com, pub-1667435731286936, DIRECT, f08c47fec0942fa0
+```
+
+That is the whole declaration: one account, selling directly, with no resellers
+and no mediation partners. A record here is a signed statement about who may
+sell this app's ad inventory, so nothing goes in that AdMob did not print for
+this account.
+
+**Publishing the file is not the same as AdMob verifying it.** Google verifies
+by crawling the developer website named in a *published* Play listing. Red
+Panda is not on Google Play yet and the AdMob payment profile is still
+incomplete, so steps 5 to 7 below remain outstanding.
+
+This document is the procedure, kept for re-copying the line and for finishing
+verification.
 
 ---
 
-## Read this before you publish
+## Where this stands
 
-**Order matters.** An `app-ads.txt` that a crawler can reach but that does not
-list your publisher id is a positive declaration that *nobody* is authorized to
-sell your inventory. That is fine today, because there is no live Red Panda
-inventory to devalue: the app is not on Google Play and no AdMob account exists.
-It stops being fine the moment the app is live with real ad units.
+**Steps 1 and 2 are done.** The placeholder is gone and
+`https://redpandadrama.online/app-ads.txt` serves the real record, so the
+ordering hazard this section used to warn about — a public domain serving a
+placeholder file while the app serves real ads — can no longer happen.
 
-So: **complete step 2 below before, or in the same session as, the first
-production release of the app.** Do not leave a public domain serving the
-placeholder file while the app is serving real ads.
-
-If you need the website live before AdMob is ready — to satisfy the Google Play
-privacy-policy and account-deletion URL requirements, which is the usual reason
-— that is fine. The app is not distributed yet, so there is no inventory to
-misdeclare. Just do not forget this file when the app ships.
+What remains is outside this repository: publish the app, point the Play
+listing at the same host, and let Google crawl. See steps 5 to 7.
 
 ---
 
@@ -54,26 +60,22 @@ google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
 `f08c47fec0942fa0` is Google's own TAG certification authority id and is the
 same for every Google publisher. The publisher id is the part that is yours.
 
-## 2. Replace the file contents
+## 2. Replace the file contents — done
 
-Open `public/app-ads.txt` and **replace everything in it** with the line AdMob
-gave you.
+The placeholder text is gone. What replaced it is a comment header describing
+the real record, followed by the record itself. Comments are legal — the spec
+ignores any line beginning with `#` — but they have to describe what the file
+*is*. The hazard the old wording guarded against was the opposite: a file whose
+first twenty lines call themselves a placeholder while a real record sits
+underneath, which is the file somebody misreads later.
 
-Do not append the record below the existing comments. Delete them. A file whose
-first twenty lines explain that it is a placeholder, followed by a real record,
-is a file somebody will misread later.
+If AdMob ever prints more than one line — a mediation partner, say — include
+all of them, one per line, exactly as printed.
 
-If AdMob gives you more than one line — for example a mediation partner as well
-— include all of them, one per line, exactly as printed.
-
-The finished file is typically one line long.
-
-> The repository test `src/__tests__/site-hygiene.test.ts` asserts that this
-> file contains **no** publisher id, precisely so nobody can commit a fabricated
-> one. When you paste the real line, that test will fail. **That failure is
-> correct and expected** — update or remove the two assertions in the
-> "declares no publisher id" and "contains only comments" tests at the same
-> commit, and say in the commit message that the real record has landed.
+> `src/__tests__/site-hygiene.test.ts` now asserts the opposite of what it once
+> did: the file must contain **exactly** the record above, exactly one publisher
+> id, and no `RESELLER` entry. Changing the record without updating that test
+> fails the suite, which is the intent.
 
 ## 3. Deploy the website
 

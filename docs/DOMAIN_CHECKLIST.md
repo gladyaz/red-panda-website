@@ -99,9 +99,10 @@ Only after every subdomain is HTTPS-only should you consider adding
 
 - [ ] `https://<root-domain>/app-ads.txt` returns **200** as `text/plain`.
 - [ ] It resolves on both the apex and `www`.
-- [ ] Replace the placeholder with the real AdMob line before the app is serving
-      real ads — [ADMOB_APP_ADS_SETUP.md](./ADMOB_APP_ADS_SETUP.md) explains the
-      ordering and why it matters.
+- [x] Replace the placeholder with the real AdMob line. Done:
+      `google.com, pub-1667435731286936, DIRECT, f08c47fec0942fa0` is live.
+      Publishing it is not verification — see
+      [ADMOB_APP_ADS_SETUP.md](./ADMOB_APP_ADS_SETUP.md) steps 5 to 7.
 
 ## 7. Link it to Google Play
 
@@ -150,7 +151,7 @@ None of these could be established from the code, and none was guessed:
 |---|---|
 | **The root domain** | Everything on this page |
 | **The support email address** | The account-deletion fallback for anyone who has lost access to the app or to their sign-in method. Every V1 sign-in method now deletes in-app, so this is the exception rather than the majority route |
-| **The real AdMob publisher line** | `app-ads.txt` verification |
+| **AdMob verification** — the publisher line itself is supplied and live; a published Play listing and a complete payment profile are not | AdMob serving real ads |
 | **The Google Play listing URL** | The homepage call to action becoming a link |
 | **The legal entity operating Red Panda**, if one exists | Naming an operator anywhere in the footer or the policy |
 | The three official Red Panda social profile URLs | Rewards social missions (backend, not this site) |

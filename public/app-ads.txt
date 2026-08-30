@@ -1,24 +1,21 @@
 # app-ads.txt — Red Panda
 #
-# THIS FILE CONTAINS NO AUTHORIZED SELLER RECORDS YET. It is a placeholder.
+# Authorized digital sellers for com.spark.redpanda, per the IAB Tech Lab
+# app-ads.txt specification. Lines beginning with "#" are comments and are
+# ignored by crawlers, so the single record at the bottom of this file is the
+# entire declaration.
 #
-# The IAB Tech Lab app-ads.txt specification treats any line beginning with "#"
-# as a comment and ignores it, so a crawler reads this file as declaring zero
-# authorized sellers — exactly the same as an empty file, with the advantage
-# that it explains itself.
+# EXACTLY ONE advertising system is authorized: the Red Panda AdMob account,
+# selling directly. There are no resellers and no mediation partners. Every
+# line here is a signed statement that a party may sell this app's ad
+# inventory, so no line is added unless that ad system printed it for this
+# publisher account first.
 #
-# No publisher id is written here because Red Panda has no AdMob account yet.
-# An invented line, or a dummy one shaped like a real record, would be a false
-# declaration about who may sell this app's inventory.
+# pub-1667435731286936 is the account half of the AdMob App ID
+# ca-app-pub-1667435731286936~3508538110, so the two cannot drift apart.
+# f08c47fec0942fa0 is Google's own TAG certification authority id and is
+# identical for every Google publisher — it is not a per-account secret.
 #
-# TO COMPLETE THIS FILE: copy the exact line AdMob generates for the Red Panda
-# app (AdMob → Apps → Red Panda → App settings → app-ads.txt) and REPLACE
-# EVERYTHING in this file with it. Do not append it below these comments and do
-# not edit the digits by hand — copy the line as AdMob prints it.
-#
-# No example record is written here, not even commented out — a commented line
-# in the right shape is the one somebody uncomments by mistake. The exact
-# format, with a worked example, is in the setup document below.
-#
-# Full procedure, including the order this must happen in relative to the Play
-# listing: docs/ADMOB_APP_ADS_SETUP.md
+# Procedure, and the ordering this must keep relative to the Play listing:
+# docs/ADMOB_APP_ADS_SETUP.md
+google.com, pub-1667435731286936, DIRECT, f08c47fec0942fa0
